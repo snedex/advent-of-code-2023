@@ -17,22 +17,24 @@ public class GameValidator
 
     public bool IsGameValid(IEnumerable<GameRecord> gameRounds)
     {
-        //The sum of the cubes drawn must not exceed the setup of the game
-        if(gameRounds.Sum(r => r.RedCubes) > RedCubes)
-        {    
-            return false;
-        }
+        foreach(var gameRound in gameRounds)
+        {
+            if(gameRound.RedCubes > RedCubes)
+            {    
+                return false;
+            }
 
-        if(gameRounds.Sum(r => r.GreenCubes) > GreenCubes)
-        {    
-            return false;
-        }
+            if(gameRound.GreenCubes > GreenCubes)
+            {    
+                return false;
+            }
 
-        if(gameRounds.Sum(r => r.BlueCubes) > BlueCubes)
-        {    
-            return false;
+            if(gameRound.BlueCubes > BlueCubes)
+            {    
+                return false;
+            }
         }
-
+        
         return true;
     }
 }
