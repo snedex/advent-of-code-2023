@@ -1,5 +1,6 @@
 
 
+
 public class GameValidator
 {
     private int RedCubes { get; set; }
@@ -36,5 +37,28 @@ public class GameValidator
         }
         
         return true;
+    }
+
+    public (int requiredRed, int requiredGreen, int requiredBlue) MinCubesToPlay(IEnumerable<GameRecord> rounds)
+    {
+       int requiredRed = 0, requiredGreen = 0, requiredBlue = 0;
+
+       foreach(var round in rounds)
+       {
+            if(round.RedCubes > requiredRed)
+            {
+                requiredRed = round.RedCubes;
+            }
+            if(round.GreenCubes > requiredGreen)
+            {
+                requiredGreen = round.GreenCubes;
+            }
+            if(round.BlueCubes > requiredBlue)
+            {
+                requiredBlue = round.BlueCubes;
+            }
+       }
+
+       return (requiredRed, requiredGreen, requiredBlue);
     }
 }
