@@ -4,7 +4,7 @@ public partial class MatrixParser
 {
     public long ParseInputAndSumParts(string fileName)
     {
-        var PartNumbers = new List<long>();
+        var partNumbers = new List<long>();
 
         int lineNo = 0;
         var searchSize = 1;
@@ -24,12 +24,46 @@ public partial class MatrixParser
             var nextLine = lineNo + searchSize >= lineBuffer.Length ? string.Empty : lineBuffer[lineNo + searchSize];
 
             var parts = ExtractIntersectingPartNumbers(new string[] { prevLine, line, nextLine }, symbolIndices, searchSize);
-            PartNumbers.AddRange(parts);
+            partNumbers.AddRange(parts);
 
             lineNo++;
         }
 
-        return PartNumbers.Sum();
+        return partNumbers.Sum();
+    }
+
+    public long FindGearsExtractRatio(string fileName, string gearChar, int numIntersections)
+    {
+        var lineBuffer = File.ReadAllLines(fileName);
+        
+        var gearRegex = new Regex(Regex.Escape(gearChar));
+        var lineNo = 0;
+        var ratios = new List<long>();
+        var searchSize = 1;
+
+        foreach (var line in lineBuffer)
+        {
+            var symbolIndices = gearRegex.Matches(line).Select(m => m.Index);
+            if (!symbolIndices.Any())
+            {
+                lineNo++;
+                continue;
+            }
+
+            var prevLine = lineNo == 0 ? string.Empty : lineBuffer[lineNo - searchSize];
+            var nextLine = lineNo + searchSize >= lineBuffer.Length ? string.Empty : lineBuffer[lineNo + searchSize];
+
+            var parts = ExtractIntersectingPartNumbers(new string[] { prevLine, line, nextLine }, symbolIndices, searchSize);
+            if(parts.Count() == numIntersections)
+            {
+                var ratio = parts.Aggregate(1L, (x,y) => x * y);
+                ratios.Add(ratio);
+            }
+
+            lineNo++;
+        }
+
+        return ratios.Sum();
     }
 
     public IEnumerable<long> ExtractIntersectingPartNumbers(string[] lines, IEnumerable<int> symbolIndices, int searchRadius)

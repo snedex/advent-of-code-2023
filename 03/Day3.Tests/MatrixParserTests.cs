@@ -65,4 +65,13 @@ public class MatrixParserTest
 
         Assert.Equal(expectedMatches, matches.Count);
     }
+
+    [Theory]
+    [InlineData(@"testinput.txt", 467835)]
+    public void FindGearRatiosAndSumShouldPass(string filename, long expectedValue)
+    {
+        var sumOfRatios = new MatrixParser().FindGearsExtractRatio(filename, "*", 2);
+        
+        Assert.Equal(expectedValue, sumOfRatios);
+    }
 }
