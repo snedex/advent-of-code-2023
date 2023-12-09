@@ -24,6 +24,7 @@ public class MatrixParserTest
     [InlineData(new string[] { "467..114..", "...*......", "..35..633." }, 3, new long[] { 467, 35 })]
     [InlineData(new string[] { "..35..633.", "......#...", "617*......" }, 6, new long[] { 633 })]
     [InlineData(new string[] { "......#...", "617*......", ".....+.58." }, 3, new long[] { 617 })]
+    [InlineData(new string[] { "...184", "..*...", "...571" }, 2, new long[] { 184, 571 })]
     public void ExtractAllPartNumbersShouldPass(string[] partLines, int symbolMatchIndex, long[] expectedParts)
     {
         var parser = new MatrixParser();

@@ -10,25 +10,33 @@ public partial class MatrixParser
         var symbolRegex = SymbolNoNumbersNoDots();
         var lineBuffer = File.ReadAllLines(fileName);
 
-        foreach (var line in lineBuffer)
+        try
         {
-            var symbolResults = symbolRegex.Match(line);
-            while(symbolResults.Success)
+            foreach (var line in lineBuffer)
             {
-                //We have line and index of each symbol any number in 1 radius in all directions including diagonal must be captured as a whole
-                //Adacent coords are same/+1/-1 line number, same/+1/-1 index
-                //if we are at the first line or the last line we cannot read behind or ahead
-                //If the symbol is the first or last column, we can't check ahead or behind
-                var prevLine = lineNo == 0 ? string.Empty : lineBuffer[lineNo - 1];
-                var nextLine = lineNo == lineBuffer.Length - 1 ? string.Empty : lineBuffer[lineNo + 1];
+                var symbolResults = symbolRegex.Match(line);
+                while(symbolResults.Success)
+                {
+                    //We have line and index of each symbol any number in 1 radius in all directions including diagonal must be captured as a whole
+                    //Adacent coords are same/+1/-1 line number, same/+1/-1 index
+                    //if we are at the first line or the last line we cannot read behind or ahead
+                    //If the symbol is the first or last column, we can't check ahead or behind
+                    var prevLine = lineNo == 0 ? string.Empty : lineBuffer[lineNo - 1];
+                    var nextLine = lineNo == lineBuffer.Length - 1 ? string.Empty : lineBuffer[lineNo + 1];
 
-                var parts = FindPartNumbers(new string[] { prevLine, line, nextLine}, symbolResults.Index);
-                PartNumbers = PartNumbers.Union(parts);
+                    var parts = FindPartNumbers(new string[] { prevLine, line, nextLine}, symbolResults.Index);
+                    PartNumbers = PartNumbers.Union(parts);
 
-                symbolResults = symbolResults.NextMatch();
+                    symbolResults = symbolResults.NextMatch();
+                }
+
+                lineNo++;
             }
-
-            lineNo++;
+        } 
+        catch(Exception ex)
+        {
+            Console.WriteLine($"Error parsing line {lineNo}");
+            throw ex;
         }
      
         return PartNumbers.Sum();
@@ -73,7 +81,7 @@ public partial class MatrixParser
             numberString = substr + numberString;
         }
 
-        for(int i = startPos; i < partNumberLine.Length; i++)
+        for(int i = startPos; i < partNumberLine.Length - 1; i++)
         {
             var substr = partNumberLine.Substring(i + 1, 1);
             if(!NumericsForwards().Match(substr).Success)
