@@ -2,5 +2,7 @@
 Console.WriteLine("Day 3");
 
 
-var parser = new MatrixParser();
-parser.ParseInput(@"testinput.txt");
+var result = new MatrixParser().ParseInputAndSumParts(@"machineinput.txt");
+
+
+Console.WriteLine($"Part 1: result is {result}");
