@@ -2,24 +2,6 @@ namespace Day3.Tests;
 
 public class MatrixParserTest
 {
-    // [Theory]
-    // [InlineData("467..114..", 2, "7", "467")]
-    // [InlineData("...*......", -1, null, null)]
-    // [InlineData("..35..633.", 3, "5", "35")]
-    // [InlineData("..35..633.", 6, "6", "633")]
-    // [InlineData("617*......", 2, "7", "617")]
-    // [InlineData("..592.....", 4, "2", "592")]
-    // [InlineData("......755.", 6, "7", "755")]
-    // [InlineData(".664.598..", 3, "4", "664")]
-    // [InlineData(".664.598..", 5, "5", "598")]
-    // public void ExtractAdjacentPartNumberShouldPass(string partNumberLine, int position, string initialMatch, string expectedResult)
-    // {
-    //     var parser = new MatrixParser();
-    //     var partNumber = parser.ExtractAdjacentPartNumber(partNumberLine, position, initialMatch);
-
-    //     Assert.Equal(expectedResult, partNumber);
-    // }
-
     [Theory]
     [InlineData(new string[] { "467..114..", "...*......", "..35..633." }, new int[] { 3 }, new long[] { 467, 35 })]
     [InlineData(new string[] { "..35..633.", "......#...", "617*......" }, new int[] { 6 }, new long[] { 633 })]
