@@ -36,14 +36,13 @@ public partial class MatrixParser
     {
         var lineBuffer = File.ReadAllLines(fileName);
         
-        var gearRegex = new Regex(Regex.Escape(gearChar));
         var lineNo = 0;
         var ratios = new List<long>();
         var searchSize = 1;
 
         foreach (var line in lineBuffer)
         {
-            var symbolIndices = gearRegex.Matches(line).Select(m => m.Index);
+            var symbolIndices = SymbolNoNumbersNoDots().Matches(line).Where(m => m.Value.Equals(gearChar)).Select(m => m.Index);
             if (!symbolIndices.Any())
             {
                 lineNo++;
@@ -56,7 +55,11 @@ public partial class MatrixParser
             var parts = ExtractIntersectingPartNumbers(new string[] { prevLine, line, nextLine }, symbolIndices, searchSize);
             if(parts.Count() == numIntersections)
             {
-                var ratio = parts.Aggregate(1L, (x,y) => x * y);
+                var ratio = 1L;
+                foreach(var value in parts)
+                {
+                    ratio *= value;
+                }
                 ratios.Add(ratio);
             }
 
