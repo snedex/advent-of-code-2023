@@ -21,4 +21,12 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Day4\Day4.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+      <None Update="testinput.txt" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
