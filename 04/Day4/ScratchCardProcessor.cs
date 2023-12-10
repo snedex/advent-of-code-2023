@@ -31,6 +31,11 @@ public partial class ScratchCardProcessor
 
         foreach (var line in File.ReadLines(InputFileName))
         {
+            if(string.IsNullOrEmpty(line) || !line.StartsWith("Card"))
+            {
+                continue;
+            }
+
             ScratchCards.Add(BuildCard(line));
         }
     }
@@ -63,7 +68,7 @@ public partial class ScratchCardProcessor
         return card;
     }
 
-    [GeneratedRegex("Card ([0-9+]):")]
+    [GeneratedRegex("Card[\\s]+([0-9]+):")]
     private static partial Regex CardMatchRegex();
     [GeneratedRegex("([0-9]+[^:]?)")]
     private static partial Regex GameNumberRegex();

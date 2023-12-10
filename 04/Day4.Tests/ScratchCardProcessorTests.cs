@@ -4,6 +4,7 @@ public class ScratchCardProcessorTests
 {
     [Theory]
     [InlineData(@"testinput.txt", 6)]
+    [InlineData(@"input.txt", 212)]
     public void BuildCardsFromFileShouldPass(string filename, int expectedCardCount)
     {
         var processor = new ScratchCardProcessor(filename);
