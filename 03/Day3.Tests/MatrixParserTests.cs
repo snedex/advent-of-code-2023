@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace Day3.Tests;
 
 public class MatrixParserTest
@@ -16,10 +18,23 @@ public class MatrixParserTest
     {
         var searchRadius = 1;
         var parser = new MatrixParser();
-        var parts = parser.ExtractIntersectingPartNumbers(partLines, symbolIndices, searchRadius);
+
+        var parts = parser.ExtractPartNumbersForSymbols(partLines, symbolIndices, searchRadius);
 
         Assert.Equal(expectedParts.Length, parts.Count());
         Assert.Equal(expectedParts, parts.ToArray());
+    }
+
+    [Theory]
+    [InlineData("467..114..", 3, 1, new long[] { 467 })]
+    [InlineData("...*......", 3, 1, new long[] { })]
+    [InlineData("..35..633.", 3, 1, new long[] { 35 })]
+    [InlineData("617*......", 3, 1, new long[] { 617 })]
+    public void ExtractPartNumbersPerLineShouldPass(string lineData, int searchPos, int searchSize, long[] expectedResult)
+    {
+        var result = new MatrixParser().ExtractIntersectingPartNumbers(lineData, searchPos, searchSize);
+
+        Assert.Equal(expectedResult, result);
     }
 
     [Theory]
@@ -52,7 +67,7 @@ public class MatrixParserTest
     [InlineData(@"testinput.txt", 467835)]
     public void FindGearRatiosAndSumShouldPass(string filename, long expectedValue)
     {
-        var sumOfRatios = new MatrixParser().FindGearsExtractRatio(filename, "*", 2);
+        var sumOfRatios = new MatrixParser().FindGearsExtractRatio(filename, '*');
         
         Assert.Equal(expectedValue, sumOfRatios);
     }

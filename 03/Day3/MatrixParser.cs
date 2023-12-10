@@ -1,3 +1,4 @@
+using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 
 public partial class MatrixParser
@@ -20,10 +21,9 @@ public partial class MatrixParser
                 continue;
             }
 
-            var prevLine = lineNo == 0 ? string.Empty : lineBuffer[lineNo - searchSize];
-            var nextLine = lineNo + searchSize >= lineBuffer.Length ? string.Empty : lineBuffer[lineNo + searchSize];
+            var linesToSearch = GetLinesToSearch(lineBuffer, lineNo, searchSize);
+            var parts = ExtractPartNumbersForSymbols(linesToSearch, symbolIndices, searchSize);
 
-            var parts = ExtractIntersectingPartNumbers(new string[] { prevLine, line, nextLine }, symbolIndices, searchSize);
             partNumbers.AddRange(parts);
 
             lineNo++;
@@ -32,35 +32,34 @@ public partial class MatrixParser
         return partNumbers.Sum();
     }
 
-    public long FindGearsExtractRatio(string fileName, string gearChar, int numIntersections)
+    public long FindGearsExtractRatio(string fileName, char gearChar, int searchSize = 1, int numIntersections = 2)
     {
         var lineBuffer = File.ReadAllLines(fileName);
-        
-        var lineNo = 0;
-        var ratios = new List<long>();
-        var searchSize = 1;
 
+        var ratios = new List<long>();
+        var gearRegex = new Regex(Regex.Escape(gearChar.ToString()));
+
+        var lineNo = 0;
         foreach (var line in lineBuffer)
         {
-            var symbolIndices = SymbolNoNumbersNoDots().Matches(line).Where(m => m.Value.Equals(gearChar)).Select(m => m.Index);
-            if (!symbolIndices.Any())
+            var gearResults = gearRegex.Matches(line);
+            if (!gearResults.Any())
             {
                 lineNo++;
                 continue;
             }
 
-            var prevLine = lineNo == 0 ? string.Empty : lineBuffer[lineNo - searchSize];
-            var nextLine = lineNo + searchSize >= lineBuffer.Length ? string.Empty : lineBuffer[lineNo + searchSize];
+            var linesToSearch = GetLinesToSearch(lineBuffer, lineNo, searchSize);
 
-            var parts = ExtractIntersectingPartNumbers(new string[] { prevLine, line, nextLine }, symbolIndices, searchSize);
-            if(parts.Count() == numIntersections)
+            foreach (var gearMatch in gearResults.Cast<Match>())
             {
-                var ratio = 1L;
-                foreach(var value in parts)
+                var adjacentParts = ExtractPartNumbersForSymbol(linesToSearch, gearMatch.Index, searchSize);
+
+                if (adjacentParts.Count() == numIntersections)
                 {
-                    ratio *= value;
+                    var ratio = adjacentParts.Aggregate(1L, (start, next) => start * next);
+                    ratios.Add(ratio);
                 }
-                ratios.Add(ratio);
             }
 
             lineNo++;
@@ -69,31 +68,53 @@ public partial class MatrixParser
         return ratios.Sum();
     }
 
-    public IEnumerable<long> ExtractIntersectingPartNumbers(string[] lines, IEnumerable<int> symbolIndices, int searchRadius)
+    public IEnumerable<string> GetLinesToSearch(string[] linesToSearch, int lineNo, int searchSize)
     {
-        var partNumbers = new List<long>();
-
-        foreach (var line in lines)
+        var lines = new List<string>();
+        var start = lineNo - searchSize;
+        var end = lineNo + searchSize;
+        for(int lineSearch = start; lineSearch < end + searchSize; lineSearch++)
         {
-            foreach (var match in NumbersGreedy().Matches(line).Cast<Match>())
+            if(lineSearch < 0 || lineSearch > linesToSearch.Length - 1)
             {
-                foreach (int symbolIndex in symbolIndices)
-                {
-                    //start1 <= end2 && end1 >= start2
-                    var searchStart = symbolIndex - 1;
-                    var SearchEnd = symbolIndex + 1;
-                    var numberStart = match.Index;
-                    var numberEnd = match.Index + match.Length - 1;
-
-                    if (searchStart <= numberEnd && SearchEnd >= numberStart)
-                    {
-                        partNumbers.Add(long.Parse(match.Value));
-                    }
-                }
+                continue;
             }
+            lines.Add(linesToSearch[lineSearch]);
         }
+        return lines;
+    }
 
-        return partNumbers;
+    public IEnumerable<long> ExtractPartNumbersForSymbols(IEnumerable<string> linesToSearch, IEnumerable<int> symbolIndices, int searchSize)
+    {
+        var adjacentParts = new List<long>();
+        foreach(var index in symbolIndices)
+        {
+            adjacentParts.AddRange(ExtractPartNumbersForSymbol(linesToSearch, index, searchSize));
+        }
+        return adjacentParts;
+    }
+
+    public IEnumerable<long> ExtractPartNumbersForSymbol(IEnumerable<string> linesToSearch, int symbolIndex, int searchSize)
+    {
+        var adjacentParts = new List<long>();
+        foreach(var line in linesToSearch)
+        {
+            adjacentParts.AddRange(ExtractIntersectingPartNumbers(line, symbolIndex, searchSize));
+        }
+        return adjacentParts;
+    }
+
+    public IEnumerable<long> ExtractIntersectingPartNumbers(string line, int symbolIndex, int searchSize)
+    {
+        return NumbersGreedy()
+            .Matches(line, 0)
+            .Where(m => Intersects(m.Index, m.Length, symbolIndex, searchSize))
+            .Select(m => long.Parse(m.Value));
+    }
+
+    private bool Intersects(int index, int length, int symbolIndex, int searchWidthAbsolute)
+    {
+        return symbolIndex - searchWidthAbsolute <= index + length - 1 && symbolIndex + searchWidthAbsolute >= index;
     }
 
     [GeneratedRegex("([^0-9\\.])")]
@@ -101,5 +122,7 @@ public partial class MatrixParser
 
     [GeneratedRegex("\\d+")]
     private static partial Regex NumbersGreedy();
-}
 
+    [GeneratedRegex("\\d+", RegexOptions.RightToLeft)]
+    private static partial Regex NumbersGreedyReverse();
+}
