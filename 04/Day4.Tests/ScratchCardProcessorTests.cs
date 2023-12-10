@@ -44,4 +44,14 @@ public class ScratchCardProcessorTests
 
         Assert.Equal(expectedScore, score);
     }
+
+    [Theory]
+    [InlineData(@"testinput.txt", 30)]
+    public void BuildCardsDuplicateCopiesOnWinsShouldPass(string filename, int expectedCopies)
+    {
+        var processor = new ScratchCardProcessor(filename);
+        var cards = processor.ScratchCardMulitplierResult();
+
+        Assert.Equal(expectedCopies, cards);
+    }
 }

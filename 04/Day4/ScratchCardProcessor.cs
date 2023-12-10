@@ -21,6 +21,26 @@ public partial class ScratchCardProcessor
 
     }
 
+    public int ScratchCardMulitplierResult()
+    {
+        BuildCards();
+        for(int i = 0; i < ScratchCards.Count; i++)
+        {
+            var matches = ScratchCards[i].Matches;
+            if(matches == 0)
+            {
+                continue;
+            }
+
+            for(int winIdx = ScratchCards[i].CardNo; winIdx < ScratchCards[i].CardNo + matches; winIdx++)
+            {
+                ScratchCards[winIdx].Copies += 1 * ScratchCards[i].Copies;
+            }
+        }
+
+        return ScratchCards.Sum(c => c.Copies);
+    }
+
     public int GetTotalScore()
     {
         BuildCards();
@@ -81,6 +101,8 @@ public class ScratchCard
     public IList<int> WinningNumbers { get; init; } = new List<int>();
     public IList<int> GameNumbers { get; init; } = new List<int>();
 
+    public int Copies { get; set; } = 1;
+
     public ScratchCard(int cardNo)
     {
         CardNo = cardNo;
@@ -90,11 +112,19 @@ public class ScratchCard
     {
     }
 
+    public int Matches
+    {
+        get 
+        {
+            return GameNumbers.Intersect(WinningNumbers).Count();
+        }
+    }
+
     public int Score 
     {
         get 
         {
-            var intersections = GameNumbers.Intersect(WinningNumbers).Count();
+            var intersections = Matches;
             if(intersections == 0)
             {
                 return 0;
