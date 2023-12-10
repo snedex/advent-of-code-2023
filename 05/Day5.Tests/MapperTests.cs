@@ -1,0 +1,89 @@
+namespace Day5.Tests;
+
+public class UnitTest1
+{
+    [Theory]
+    [InlineData(@"testinput.txt")]
+    public void ParseInFileShouldPass(string filename)
+    {
+        var exception = Record.Exception(() => new Mapper(filename));
+
+        Assert.Null(exception);
+    }
+
+    [Theory]
+    [InlineData(@"testinput.txt", 4)]
+    public void ParseInFileCorrectNoSeedsShouldPass(string filename, int expectedSeedCount)
+    {
+        var map = new Mapper(filename);
+        Assert.Equal(expectedSeedCount, map.Seeds.Count);
+    }
+
+    [Theory]
+    [InlineData(@"testinput.txt", 50)]
+    public void ParseInFileCorrectNoSoilShouldPass(string filename, int expectedSoilCount)
+    {
+        var map = new Mapper(filename);
+        Assert.Equal(expectedSoilCount, map.SeedToSoil.Count);
+    }
+
+    [Theory]
+    [InlineData(@"testinput.txt", 54)]
+    public void ParseInFileCorrectNoFertilizerShouldPass(string filename, int expectedFertilizerCount)
+    {
+        var map = new Mapper(filename);
+        Assert.Equal(expectedFertilizerCount, map.SoilToFertilizer.Count);
+    }
+
+    [Theory]
+    [InlineData(@"testinput.txt", 61)]
+    public void ParseInFileCorrectNoWaterShouldPass(string filename, int expectedWaterCount)
+    {
+        var map = new Mapper(filename);
+        Assert.Equal(expectedWaterCount, map.FertilizerToWater.Count);
+    }
+
+    [Theory]
+    [InlineData(@"testinput.txt", 77)]
+    public void ParseInFileCorrectNoLightShouldPass(string filename, int expectedLightCount)
+    {
+        var map = new Mapper(filename);
+        Assert.Equal(expectedLightCount, map.WaterToLight.Count);
+    }
+
+    [Theory]
+    [InlineData(@"testinput.txt", 55)]
+    public void ParseInFileCorrectNoTemperatureShouldPass(string filename, int expectedTemperatureCount)
+    {
+        var map = new Mapper(filename);
+        Assert.Equal(expectedTemperatureCount, map.LightToTemperature.Count);
+    }
+
+    [Theory]
+    [InlineData(@"testinput.txt", 70)]
+    public void ParseInFileCorrectNoHumidityShouldPass(string filename, int expectedHumidityCount)
+    {
+        var map = new Mapper(filename);
+        Assert.Equal(expectedHumidityCount, map.TemperatureToHumidity.Count);
+    }
+
+    [Theory]
+    [InlineData(@"testinput.txt", 41)]
+    public void ParseInFileCorrectNoLocationShouldPass(string filename, int expectedLocationCount)
+    {
+        var map = new Mapper(filename);
+        Assert.Equal(expectedLocationCount, map.HumitidyToLocation.Count);
+    }
+
+    [Theory]
+    [InlineData(@"testinput.txt", 79, 82)]
+    [InlineData(@"testinput.txt", 14, 43)]
+    [InlineData(@"testinput.txt", 55, 86)]
+    [InlineData(@"testinput.txt", 13, 35)]
+    public void SeedToLocationValueShouldPass(string filename, int seed, int expectedLocation)
+    {
+        var map = new Mapper(filename);
+        var location = map.SeedToLocation(seed);
+        Assert.Equal(expectedLocation, location);
+    }
+}
