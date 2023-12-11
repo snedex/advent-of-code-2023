@@ -20,7 +20,7 @@ public class UnitTest1
     }
 
     [Theory]
-    [InlineData(@"testinput.txt", 50)]
+    [InlineData(@"testinput.txt", 2)]
     public void ParseInFileCorrectNoSoilShouldPass(string filename, int expectedSoilCount)
     {
         var map = new Mapper(filename);
@@ -28,7 +28,7 @@ public class UnitTest1
     }
 
     [Theory]
-    [InlineData(@"testinput.txt", 54)]
+    [InlineData(@"testinput.txt", 3)]
     public void ParseInFileCorrectNoFertilizerShouldPass(string filename, int expectedFertilizerCount)
     {
         var map = new Mapper(filename);
@@ -36,7 +36,7 @@ public class UnitTest1
     }
 
     [Theory]
-    [InlineData(@"testinput.txt", 61)]
+    [InlineData(@"testinput.txt", 4)]
     public void ParseInFileCorrectNoWaterShouldPass(string filename, int expectedWaterCount)
     {
         var map = new Mapper(filename);
@@ -44,7 +44,7 @@ public class UnitTest1
     }
 
     [Theory]
-    [InlineData(@"testinput.txt", 77)]
+    [InlineData(@"testinput.txt", 2)]
     public void ParseInFileCorrectNoLightShouldPass(string filename, int expectedLightCount)
     {
         var map = new Mapper(filename);
@@ -52,7 +52,7 @@ public class UnitTest1
     }
 
     [Theory]
-    [InlineData(@"testinput.txt", 55)]
+    [InlineData(@"testinput.txt", 3)]
     public void ParseInFileCorrectNoTemperatureShouldPass(string filename, int expectedTemperatureCount)
     {
         var map = new Mapper(filename);
@@ -60,7 +60,7 @@ public class UnitTest1
     }
 
     [Theory]
-    [InlineData(@"testinput.txt", 70)]
+    [InlineData(@"testinput.txt", 2)]
     public void ParseInFileCorrectNoHumidityShouldPass(string filename, int expectedHumidityCount)
     {
         var map = new Mapper(filename);
@@ -68,7 +68,7 @@ public class UnitTest1
     }
 
     [Theory]
-    [InlineData(@"testinput.txt", 41)]
+    [InlineData(@"testinput.txt", 2)]
     public void ParseInFileCorrectNoLocationShouldPass(string filename, int expectedLocationCount)
     {
         var map = new Mapper(filename);
