@@ -83,7 +83,7 @@ public class UnitTest1
     public void SeedToLocationValueShouldPass(string filename, int seed, int expectedLocation)
     {
         var map = new Mapper(filename);
-        var location = map.SeedToLocation(seed);
+        var location = map.Convert(seed, Segment.Seeds, Segment.Location);
         Assert.Equal(expectedLocation, location);
     }
 }

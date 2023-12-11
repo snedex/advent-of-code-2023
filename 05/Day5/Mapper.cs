@@ -17,8 +17,6 @@ public class MapRange
     public long Source { get; set; }
     public long Range { get; set; }
 
-    public MapRange() { }
-
     public MapRange(long destination, long source, long range)
     {
         Destination = destination;
@@ -29,16 +27,6 @@ public class MapRange
     public bool IntersectsSource(long item)
     {
         return item >= Source && item <= Source + Range;
-    }
-
-    public bool IntersectsDestination(long item)
-    {
-        return item >= Destination && item <= Destination + Range;
-    }
-
-    public long ToSource(long destinationIndex)
-    {
-        return Source + (destinationIndex - Destination);
     }
 
     public long ToDestination(long sourceIndex)
@@ -118,33 +106,6 @@ public class Mapper
         var item = new MapRange(destination, source, range);
 
         GetSegmentCollection(segment).Add(item);
-
-        // switch (segment)
-        // {
-        //     case Segment.Soil:
-        //         SeedToSoil.Add(item);
-        //         break;
-        //     case Segment.Fertilizer:
-        //         SoilToFertilizer.Add(item);
-        //         break;
-        //     case Segment.Water:
-        //         FertilizerToWater.Add(item);
-        //         break;
-        //     case Segment.Light:
-        //         WaterToLight.Add(item);
-        //         break;
-        //     case Segment.Temperature:
-        //         LightToTemperature.Add(item);
-        //         break;
-        //     case Segment.Humidity:
-        //         TemperatureToHumidity.Add(item);
-        //         break;
-        //     case Segment.Location:
-        //         HumitidyToLocation.Add(item);
-        //         break;
-        //     default:
-        //         break;
-        // }
     }
 
     private static Segment GetNextSegment(Segment segment) => segment switch
@@ -182,59 +143,25 @@ public class Mapper
                 return new List<MapRange>();
         }
     }
-    public long ToSoil(long seed)
-    {
-        var col = GetSegmentCollection(Segment.Soil);
-        return FindIntersectionOrDefault(col, seed);
-    }
 
-    public long ToFertilizer(long soil)
+    public long Convert(long value, Segment source, Segment destination)
     {
-        var col = GetSegmentCollection(Segment.Fertilizer);
-        return FindIntersectionOrDefault(col, soil);
-    }
+        var currentSegment = source;
+        var segmentValue = value;
+        while(currentSegment != destination)
+        {
+            currentSegment = GetNextSegment(currentSegment);
 
-    public long ToWater(long fertilizer)
-    {
-        var col = GetSegmentCollection(Segment.Water);
-        return FindIntersectionOrDefault(col, fertilizer);
-    }
+            if(currentSegment == Segment.None)
+            {
+                break;
+            }
 
-    public long ToLight(long water)
-    {
-        var col = GetSegmentCollection(Segment.Light);
-        return FindIntersectionOrDefault(col, water);
-    }
+            var col = GetSegmentCollection(currentSegment);
+            segmentValue = FindIntersectionOrDefault(col, segmentValue); 
+        }
 
-    public long ToTemperature(long light)
-    {
-        var col = GetSegmentCollection(Segment.Temperature);
-        return FindIntersectionOrDefault(col, light);
-    }
-
-    public long ToHumidity(long temperature)
-    {
-        var col = GetSegmentCollection(Segment.Humidity);
-        return FindIntersectionOrDefault(col, temperature);
-    }
-
-    public long ToLocation(long humidity)
-    {
-        var col = GetSegmentCollection(Segment.Location);
-        return FindIntersectionOrDefault(col, humidity);
-    }
-
-    public long SeedToLocation(long seed)
-    {
-        //Verbose for debugging, should tidy this up with a fancy interface builder inheritence 
-        var soil = ToSoil(seed);
-        var fertilizer = ToFertilizer(soil);
-        var water = ToWater(fertilizer);
-        var light = ToLight(water);
-        var temperature = ToTemperature(light);
-        var humidity = ToHumidity(temperature);
-        var location = ToLocation(humidity);
-        return location;
+        return segmentValue;
     }
 
     private long FindIntersectionOrDefault(IList<MapRange> mapRanges, long sourceValue)
