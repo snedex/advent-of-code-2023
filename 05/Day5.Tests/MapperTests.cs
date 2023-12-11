@@ -76,6 +76,14 @@ public class UnitTest1
     }
 
     [Theory]
+    [InlineData(@"testinput.txt", 2)]
+    public void ParseInFileCorrectNoSeedRangesShouldPass(string filename, int expectedSeedRanges)
+    {
+        var map = new Mapper(filename);
+        Assert.Equal(expectedSeedRanges, map.SeedRanges.Count);
+    }
+
+    [Theory]
     [InlineData(@"testinput.txt", 79, 82)]
     [InlineData(@"testinput.txt", 14, 43)]
     [InlineData(@"testinput.txt", 55, 86)]
@@ -84,6 +92,17 @@ public class UnitTest1
     {
         var map = new Mapper(filename);
         var location = map.Convert(seed, Segment.Seeds, Segment.Location);
+        Assert.Equal(expectedLocation, location);
+    }
+
+    [Theory]
+    [InlineData(@"testinput.txt", 82, 46)]
+    public void SeedToLocationSeedRanges(string filename, int expectedSeed, int expectedLocation)
+    {
+        var mapper = new Mapper(filename);
+        (var location, var seed) = mapper.FindLowestLocationWithSeedRanges();
+
+        Assert.Equal(expectedSeed, seed);
         Assert.Equal(expectedLocation, location);
     }
 }

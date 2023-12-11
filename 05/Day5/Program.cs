@@ -2,15 +2,8 @@
 Console.WriteLine("Day 5!");
 
 var mapper = new Mapper(@"input.txt");
-
-var lowestLocation = -1L;
-foreach(var seed in mapper.Seeds)
-{
-    var seedLocation = mapper.Convert(seed, Segment.Seeds, Segment.Location);
-    if(lowestLocation == -1 || seedLocation < lowestLocation)
-    {
-        lowestLocation = seedLocation;
-    }
-}
-
+var lowestLocation = mapper.FindLowestLocationSeeds();
 Console.WriteLine(@$"Part 1 result: {lowestLocation}");
+
+var lowestLocationPt2 = mapper.FindLowestLocationWithSeedRanges();
+Console.WriteLine(@$"Part 2 result: {lowestLocationPt2}");

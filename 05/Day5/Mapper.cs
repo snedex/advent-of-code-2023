@@ -13,9 +13,9 @@ public enum Segment
 
 public class MapRange
 {
-    public long Destination { get; set; }
-    public long Source { get; set; }
-    public long Range { get; set; }
+    public long Destination { get; private set; }
+    public long Source { get; private set; }
+    public long Range { get; private set; }
 
     public MapRange(long destination, long source, long range)
     {
@@ -37,7 +37,7 @@ public class MapRange
 
 public class Mapper
 {
-    public HashSet<long> Seeds { get; init; } = new HashSet<long>();
+    public IList<long> Seeds { get; init; } = new List<long>();
     public IList<MapRange> SeedToSoil { get; private set; } = new List<MapRange>();
     public IList<MapRange> SoilToFertilizer { get; private set; } = new List<MapRange>();
     public IList<MapRange> FertilizerToWater { get; private set; } = new List<MapRange>();
@@ -46,14 +46,78 @@ public class Mapper
     public IList<MapRange> TemperatureToHumidity { get; private set; } = new List<MapRange>();
     public IList<MapRange> HumitidyToLocation { get; private set; } = new List<MapRange>();
 
+    public IList<MapRange> SeedRanges { get; private set; } = new List<MapRange>();
+
     private const string HeaderMarker = ":";
 
     public Mapper(string filename)
     {
         ParseAlmanac(filename);
+        PrepareSeedRanges();
     }
 
-    protected void ParseAlmanac(string filename)
+    private void PrepareSeedRanges()
+    {
+        for(int i = 0; i <= Seeds.Count - 2; i += 2)
+        {
+            SeedRanges.Add(new MapRange(0L, Seeds[i], Seeds[i + 1]));
+        }
+    }
+
+    public long FindLowestLocationSeeds()
+    {
+        var lowestLocation = -1L;
+        foreach(var seed in Seeds)
+        {
+            var seedLocation = Convert(seed, Segment.Seeds, Segment.Location);
+            if(lowestLocation == -1 || seedLocation < lowestLocation)
+            {
+                lowestLocation = seedLocation;
+            }
+        }
+        return lowestLocation;
+    }
+
+    public (long, long) FindLowestLocationWithSeedRanges()
+    {
+        var lowestLocation = -1L;
+        var seed = -1L;
+        foreach(var map in SeedRanges)
+        {
+            for(var i = map.Source; i < map.Source + map.Range; i++)
+            {
+                var seedLocation = Convert(i, Segment.Seeds, Segment.Location);
+                if(lowestLocation == -1 || seedLocation < lowestLocation)
+                {
+                    lowestLocation = seedLocation;
+                    seed = i;
+                }
+            }
+        }
+        return (lowestLocation, seed);
+    }
+
+    public long Convert(long value, Segment source, Segment destination)
+    {
+        var currentSegment = source;
+        var segmentValue = value;
+        while(currentSegment != destination)
+        {
+            currentSegment = GetNextSegment(currentSegment);
+
+            if(currentSegment == Segment.None)
+            {
+                break;
+            }
+
+            var col = GetSegmentCollection(currentSegment);
+            segmentValue = FindIntersectionOrDefault(col, segmentValue); 
+        }
+
+        return segmentValue;
+    }
+
+    private void ParseAlmanac(string filename)
     {
         var segment = Segment.None;
         foreach (var fileLine in File.ReadLines(filename))
@@ -142,26 +206,6 @@ public class Mapper
             default:
                 return new List<MapRange>();
         }
-    }
-
-    public long Convert(long value, Segment source, Segment destination)
-    {
-        var currentSegment = source;
-        var segmentValue = value;
-        while(currentSegment != destination)
-        {
-            currentSegment = GetNextSegment(currentSegment);
-
-            if(currentSegment == Segment.None)
-            {
-                break;
-            }
-
-            var col = GetSegmentCollection(currentSegment);
-            segmentValue = FindIntersectionOrDefault(col, segmentValue); 
-        }
-
-        return segmentValue;
     }
 
     private long FindIntersectionOrDefault(IList<MapRange> mapRanges, long sourceValue)
